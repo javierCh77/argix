@@ -1,0 +1,72 @@
+.holoCard {
+  /* Variables interactivo-3D */
+  --mx: 0.5;
+  --my: 0.5;
+  --rx: 0deg;
+  --ry: 0deg;
+
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 180ms ease, box-shadow 240ms ease, border-color 240ms ease;
+  will-change: transform;
+  position: relative;
+  isolation: isolate;
+}
+
+.holoCard:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.holoBorder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 1rem; /* 2xl tailwind */
+  background:
+    radial-gradient(1200px 600px at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+      rgba(56, 189, 248, 0.18), transparent 45%)
+    ,
+    linear-gradient(180deg, rgba(2, 6, 23, 0) 0%, rgba(56, 189, 248, 0.10) 100%);
+  mix-blend-mode: plus-lighter;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.holoSheen {
+  position: absolute;
+  inset: -2px;
+  border-radius: 1rem;
+  background: conic-gradient(
+    from 180deg at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+    rgba(56, 189, 248, 0.0) 0deg,
+    rgba(56, 189, 248, 0.10) 60deg,
+    rgba(99, 102, 241, 0.10) 120deg,
+    rgba(56, 189, 248, 0.0) 240deg
+  );
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  z-index: 0;
+}
+
+.holoCard:hover .holoSheen {
+  opacity: 1;
+}
+
+.holoScanlines {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(2, 6, 23, 0.04) 0px,
+      rgba(2, 6, 23, 0.04) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}

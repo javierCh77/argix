@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
+/* ============================
+   Argix design tokens (Light)
+============================ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1f2937; /* slate-800 */
+  --muted: #4b5563; /* slate-600 */
+  --border: #e5e7eb; /* gray-200 */
+  --accentA: #06b6d4; /* cyan-500 */
+  --accentB: #8b5cf6; /* violet-500 */
+ --mx: -1000px; /* se sobreescribe en runtime dentro del contenedor */
+  --my: -1000px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accentA: var(--accentA);
+  --color-accentB: var(--accentB);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+    monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base */
+html,
+body {
+  height: 100%;
 }
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Helpers */
+.container {
+  @apply mx-auto max-w-6xl px-4;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 font-medium transition;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 font-medium bg-white;
+  border-color: var(--border);
+  color: var(--foreground);
 }
