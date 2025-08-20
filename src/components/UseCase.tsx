@@ -20,28 +20,28 @@ const CASES: UseCase[] = [
     title: "Salud",
     description: "Análisis de historias clínicas, triage de síntomas y turnos automáticos.",
     bullets: ["Extracción de datos clínicos", "Clasificación de síntomas", "Alertas y priorización"],
-    href: "#contacto",
+    href: "features/salud",
   },
   {
     icon: <Users size={20} className="text-purple-600" />,
     title: "Recursos Humanos",
     description: "Filtrado de CVs, entrevistas guiadas y matching por skills.",
     bullets: ["Rankeo de candidatos", "Entrevistas con IA", "Onboarding asistido"],
-    href: "#contacto",
+    href: "features/rrhh",
   },
   {
     icon: <ShieldCheck size={20} className="text-purple-600" />,
     title: "Seguridad & Cumplimiento",
     description: "Detección de EPP con visión por computadora y alertas en tiempo real.",
     bullets: ["Detección de casco/arnés", "Reglas por área", "Reportes automáticos"],
-    href: "#contacto",
+    href: "features/seguridad",
   },
   {
     icon: <Building size={20} className="text-purple-600" />,
     title: "Logística & Producción",
     description: "Ruteo óptimo, control de inventario y predicción de demanda.",
     bullets: ["Ruteo dinámico", "Automatización de reabastecimiento", "Forecast de demanda"],
-    href: "#contacto",
+    href: "features/logistica",
   },
 ];
 

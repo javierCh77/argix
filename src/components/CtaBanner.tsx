@@ -89,18 +89,13 @@ export default function CtaBanner() {
 
               {/* CTA */}
               <div className="shrink-0">
-                {/* <Button href="#contacto">
-                  <span className="inline-flex items-center gap-2">
-                    Agendar llamada
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </Button> */}
+               
                 <Image
                   src="/images/logo.png"
                   alt="Logo de la empresa"
                   width={150}
                   height={50}
-                  className="h-[50px] w-auto"
+                  className="h-[160px] w-auto"
                   priority
                 />
               </div>

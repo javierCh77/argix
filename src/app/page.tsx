@@ -6,6 +6,8 @@ import UseCases from "@/components/UseCase";
 import HowItWorks from "@/components/HowItWorks";
 import ContactForm from "@/components/ContactForm";
 import CtaBanner from "@/components/CtaBanner";
+import ChatArgix from "@/components/ChatArgix";
+import FloatingChatLauncher from "@/components/FloatingChatLauncher";
 
 export default function Home() {
   return (
@@ -14,11 +16,19 @@ export default function Home() {
       <HeroSection />
       <Features />
       <UseCases />
+
+      {/* Inline: punto estratégico */}
+      <section id="demo-chat" className="scroll-mt-24 my-12 sm:my-16">
+        <ChatArgix />
+      </section>
+
       <HowItWorks />
-      <CtaBanner />
       <ContactForm />
-   
+      <CtaBanner />
       <Footer />
+
+      {/* Launcher global (mobile + desktop) */}
+      <FloatingChatLauncher />
     </>
   );
 }

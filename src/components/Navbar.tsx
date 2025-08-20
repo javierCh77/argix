@@ -53,11 +53,7 @@ export default function Navbar() {
                   Contacto
                 </Button>
               </Link>
-              <Link href="#demo">
-                <Button className="shadow-md bg-gradient-to-r from-cyan-400 to-purple-500 hover:opacity-90 cursor-pointer">
-                  Probar Demo
-                </Button>
-              </Link>
+             
             </nav>
 
             {/* Toggle menú móvil */}
