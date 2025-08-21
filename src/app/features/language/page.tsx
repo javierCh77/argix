@@ -2,108 +2,17 @@
 "use client";
 
 import Link from "next/link";
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Bot,
   ArrowRight,
-  TrendingUp,
-  Gauge,
-  MessageSquare,
   CheckCircle2,
   ShieldCheck,
-  BarChart3,
   Zap,
   PlugZap,
   Headphones,
   FileText,
 } from "lucide-react";
-import { useEffect } from "react";
-
-/* =========================
-   Utils: CountUp & Sparkline
-========================= */
-function useCountUp(to: number, duration = 1.2) {
-  const mv = useMotionValue(0);
-  useEffect(() => {
-    const controls = animate(mv, to, { duration, ease: "easeOut" });
-    return controls.stop;
-  }, [to, duration, mv]);
-  return mv;
-}
-
-function Sparkline({ points = [5, 7, 6, 9, 12, 10, 14] }: { points?: number[] }) {
-  const width = 120;
-  const height = 36;
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const norm = (v: number) =>
-    (height - 6) * ((v - min) / (max - min || 1)) + 3;
-  const step = width / (points.length - 1 || 1);
-
-  const d = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${i * step} ${height - norm(p)}`)
-    .join(" ");
-
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
-      <path d={d} fill="none" stroke="currentColor" strokeWidth="2" opacity={0.9} />
-    </svg>
-  );
-}
-
-/* =========================
-   Tarjetas de métricas
-========================= */
-function StatCard({
-  title,
-  value,
-  suffix,
-  trend,
-  icon: Icon,
-  spark = [4, 6, 5, 7, 9, 8, 12],
-}: {
-  title: string;
-  value: number;
-  suffix?: string;
-  trend: "up" | "down";
-  icon: any;
-  spark?: number[];
-}) {
-  const mv = useCountUp(value, 1.1);
-  const rounded = useTransform(mv, (v) => Math.round(v).toString());
-
-  return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-4 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
-      <div className="flex items-center justify-between">
-        <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-600/30 bg-cyan-600/10 text-cyan-700">
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className={`text-xs font-semibold ${trend === "up" ? "text-emerald-600" : "text-rose-600"}`}>
-          {trend === "up" ? "▲ Mejora" : "▼ Caída"}
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <div className="text-sm text-slate-600">{title}</div>
-        <div className="mt-1 flex items-baseline gap-1">
-          <motion.span className="text-2xl font-bold tabular-nums text-slate-900">
-            {rounded}
-          </motion.span>
-          {suffix ? <span className="text-slate-500">{suffix}</span> : null}
-        </div>
-      </div>
-
-      <div className="mt-3 text-cyan-700/80">
-        <Sparkline points={spark} />
-      </div>
-    </div>
-  );
-}
 
 /* =========================
    Badges simples
@@ -152,6 +61,78 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 /* =========================
+   Bloques de impacto (texto claro)
+========================= */
+function ImpactBlock({
+  title,
+  lines,
+}: {
+  title: string;
+  lines: string[];
+}) {
+  return (
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
+      <div className="text-sm font-semibold text-slate-900">{title}</div>
+      <ul className="mt-3 space-y-2 text-slate-700">
+        {lines.map((l, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 text-cyan-700" />
+            <span>{l}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* =========================
+   Tabla simple Antes / Después (texto)
+========================= */
+function BeforeAfterTable() {
+  return (
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
+      <div className="text-sm font-semibold text-slate-900">Antes vs Después</div>
+      <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr className="text-slate-600">
+              <th className="px-4 py-2 text-left">Indicador</th>
+              <th className="px-4 py-2 text-left">Sin IA</th>
+              <th className="px-4 py-2 text-left">Con IA</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Tiempo de respuesta</td>
+              <td className="px-4 py-2 text-slate-500">Lento y variable</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Respuestas consistentes en segundos</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Costo por interacción</td>
+              <td className="px-4 py-2 text-slate-500">Alto por volumen manual</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Menor costo por automatización</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">% de resolución</td>
+              <td className="px-4 py-2 text-slate-500">Inconsistente</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Mayor resolución en primer contacto</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Escalabilidad</td>
+              <td className="px-4 py-2 text-slate-500">Limitada por equipo</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Escala sin aumentar headcount</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-3 text-xs text-slate-500">
+        Valores demostrativos para ilustrar el impacto; se ajustan según tu volumen y canal.
+      </p>
+    </div>
+  );
+}
+
+/* =========================
    Página
 ========================= */
 export default function LanguageFeaturePage() {
@@ -195,17 +176,37 @@ export default function LanguageFeaturePage() {
           </div>
         </div>
 
-        {/* Métricas clave */}
+        {/* Impacto — claro y sin gráficos */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
         >
-          <StatCard title="Reducción TTR" value={47} suffix="%" trend="up" icon={Gauge} spark={[8,7,9,10,12,13,15]} />
-          <StatCard title="CSAT / NPS" value={21} suffix=" pts" trend="up" icon={TrendingUp} spark={[4,5,6,7,9,9,11]} />
-          <StatCard title="Ahorro de costos" value={38} suffix="%" trend="up" icon={BarChart3} spark={[3,4,5,7,10,12,14]} />
-          <StatCard title="Automatización" value={65} suffix="%" trend="up" icon={MessageSquare} spark={[5,5,6,8,9,11,13]} />
+          <ImpactBlock
+            title="Eficiencia operativa"
+            lines={[
+              "Menos tiempo en preguntas repetitivas.",
+              "Disponibilidad 24/7 sin aumentar headcount.",
+              "Escalado automático en picos de demanda.",
+            ]}
+          />
+          <ImpactBlock
+            title="Calidad y consistencia"
+            lines={[
+              "Respuestas estandarizadas con contexto.",
+              "Mejor control de tono y cumplimiento.",
+              "Trazabilidad para auditorías y QA.",
+            ]}
+          />
+          <ImpactBlock
+            title="Insights accionables"
+            lines={[
+              "Detección de temas y sentimiento en tiempo real.",
+              "Hallazgos para entrenamiento y mejoras de CX.",
+              "Alertas tempranas ante incidencias.",
+            ]}
+          />
         </motion.div>
 
         {/* Contenido principal + sidebar */}
@@ -236,15 +237,15 @@ export default function LanguageFeaturePage() {
               </li>
             </ul>
 
-            <h3 className="mt-8 text-slate-900 font-semibold">Beneficios</h3>
-            <ul className="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700">
-              <li>• Respuestas más rápidas y de mayor calidad.</li>
-              <li>• Tono e información consistentes.</li>
-              <li>• Insights accionables para training & QA.</li>
-              <li>• Escalable sin aumentar headcount.</li>
-            </ul>
+            <h3 className="mt-8 text-slate-900 font-semibold">Antes y después</h3>
+            <p className="mt-2 text-slate-600">
+              Vista comparativa para entender el salto operativo sin entrar en datos específicos.
+            </p>
+            <div className="mt-4">
+              <BeforeAfterTable />
+            </div>
 
-            {/* Mini demo before/after */}
+            {/* Mini demo textual */}
             <div className="mt-8 rounded-xl border border-slate-200 p-4 bg-slate-50/50">
               <div className="text-sm text-slate-500 mb-2">Ejemplo rápido</div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -258,7 +259,7 @@ export default function LanguageFeaturePage() {
                 <div className="rounded-lg bg-white border border-emerald-200 p-3 shadow-[0_0_0_1px_rgba(16,185,129,0.2)]">
                   <div className="text-xs font-semibold text-emerald-600 mb-1">DESPUÉS (IA)</div>
                   <p className="text-sm text-slate-700">
-                    “Claro — mañana tengo 10:30, 12:00 y 16:15 disponibles. ¿Cuál prefieres?”
+                    “Claro — mañana tengo 10:30, 12:00 y 16:15 disponibles. ¿Cuál preferís?”
                   </p>
                   <div className="mt-2 text-xs text-emerald-600">→ Respuesta y reprogramación instantánea</div>
                 </div>
@@ -270,7 +271,7 @@ export default function LanguageFeaturePage() {
           <motion.aside
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
             className="rounded-2xl bg-white border border-slate-200 p-6 shadow-[0_8px_22px_rgba(2,6,23,0.06)]"
           >
             <h3 className="text-slate-900 font-semibold">¿Listo para probar?</h3>
@@ -285,7 +286,7 @@ export default function LanguageFeaturePage() {
             </div>
 
             <Link
-              href="#contacto"
+              href="/#contact"
               className="mt-4 inline-flex items-center gap-2 rounded-xl border border-cyan-600/30 bg-cyan-600/10 px-4 py-2 text-cyan-700 hover:bg-cyan-600/20 transition"
             >
               Hablar con Ventas <ArrowRight className="h-4 w-4" />
@@ -306,7 +307,7 @@ export default function LanguageFeaturePage() {
           <div className="lg:col-span-2 space-y-3">
             <FAQItem
               q="¿Cómo manejan los datos sensibles?"
-              a="Aplicamos seudonimización, retención configurable y encriptación en tránsito y en reposo. Podemos desplegar en tu nube si lo requieres."
+              a="Aplicamos seudonimización, retención configurable y encriptación en tránsito y en reposo. Podemos desplegar en tu nube si lo requerís."
             />
             <FAQItem
               q="¿Qué idiomas soportan?"

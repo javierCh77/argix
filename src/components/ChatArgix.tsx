@@ -7,10 +7,14 @@ import { Send, Sparkles, ShieldCheck, PenBox } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-// ====== Ajustes de velocidad del tipeo ======
-const BASE_DELAY_MS = 25;           // velocidad base por carácter (menor = más rápido)
-const PUNCTUATION_EXTRA_MS = 180;   // pausa extra en signos de puntuación
+// ====== Ajustes ======
+const BASE_DELAY_MS = 25;
+const PUNCTUATION_EXTRA_MS = 180;
 const PUNCTUATION_REGEX = /[.,;:!?。\n]/;
+
+// Límite y umbral de aviso
+const MAX_CHARS = 300;
+const WARN_THRESHOLD = 150;
 
 export default function ChatArgix() {
   const [messages, setMessages] = useState<Msg[]>([
@@ -23,17 +27,18 @@ export default function ChatArgix() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Scroll solo del contenedor del chat
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Para poder cancelar un stream en curso si el usuario envía otro mensaje
   const activeAbortRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; activeAbortRef.current?.abort(); };
+    return () => {
+      mountedRef.current = false;
+      activeAbortRef.current?.abort();
+    };
   }, []);
 
   useEffect(() => {
@@ -42,10 +47,18 @@ export default function ChatArgix() {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
-  const canSend = input.trim().length > 0 && !loading;
+  const withinLimit = input.length <= MAX_CHARS;
+  const canSend = input.trim().length > 0 && !loading && withinLimit;
 
   async function onSend() {
     if (!canSend) return;
+
+    // Validación por si acaso (seguridad extra)
+    if (input.length > MAX_CHARS) {
+      // Podés cambiar alert por un toast si tenés uno
+      alert(`El mensaje no puede superar los ${MAX_CHARS} caracteres.`);
+      return;
+    }
 
     // Cancelá cualquier stream activo
     activeAbortRef.current?.abort();
@@ -81,7 +94,6 @@ export default function ChatArgix() {
       let buffer = "";
       let acc = ""; // acumulado visible
 
-      // Función para "tipear" un carácter con retraso controlado
       const typeChar = async (ch: string) => {
         if (!mountedRef.current) return;
 
@@ -95,36 +107,34 @@ export default function ChatArgix() {
           return next;
         });
 
-        // Delay base + pausa extra si hay puntuación
         const extra = PUNCTUATION_REGEX.test(ch) ? PUNCTUATION_EXTRA_MS : 0;
         await new Promise((r) => setTimeout(r, BASE_DELAY_MS + extra));
       };
 
-      // Leemos chunks → acumulamos en buffer → tipeamos char por char con delay
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
 
-        // stream de texto plano: iteramos caracteres
         for (const ch of buffer) {
-          // Si se abortó, frenamos
           if (controller.signal.aborted) break;
           await typeChar(ch);
         }
-
         buffer = "";
       }
     } catch (err) {
       if ((err as any)?.name === "AbortError") {
-        // Abortado al enviar otra consulta: no mostramos error
+        // abortado al enviar otra consulta
       } else {
-        // Reemplazamos la última burbuja si sigue vacía
         setMessages((prev) => {
           const next = [...prev];
           const lastIndex = next.length - 1;
-          if (lastIndex >= 0 && next[lastIndex].role === "assistant" && next[lastIndex].content === "") {
+          if (
+            lastIndex >= 0 &&
+            next[lastIndex].role === "assistant" &&
+            next[lastIndex].content === ""
+          ) {
             next[lastIndex] = {
               role: "assistant",
               content: "Error de conexión. Probá nuevamente en unos segundos.",
@@ -155,6 +165,10 @@ export default function ChatArgix() {
       onSend();
     }
   }
+
+  const remaining = Math.max(0, MAX_CHARS - input.length);
+  const nearLimit = input.length >= WARN_THRESHOLD && input.length <= MAX_CHARS;
+  const overLimit = input.length > MAX_CHARS;
 
   return (
     <section aria-label="Chat Argix" className="relative mx-auto w-full max-w-4xl">
@@ -199,15 +213,25 @@ export default function ChatArgix() {
 
         {/* Input */}
         <div className="px-5 pb-5">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-white/70 backdrop-blur px-3 py-2 focus-within:ring-2 focus-within:ring-cyan-300/50">
+          <div
+            className={[
+              "flex items-center gap-2 rounded-xl border bg-white/70 backdrop-blur px-3 py-2 focus-within:ring-2",
+              overLimit
+                ? "border-red-300 focus-within:ring-red-300/60"
+                : nearLimit
+                ? "border-amber-300 focus-within:ring-amber-300/60"
+                : "border-slate-200/70 focus-within:ring-cyan-300/50",
+            ].join(" ")}
+          >
             <input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Preguntanos sobre Argix (⌘/Ctrl + Enter para enviar)…"
+              placeholder={`Escribí tu consulta (máx. ${MAX_CHARS} caracteres)…`}
               className="w-full bg-transparent outline-none text-slate-900 placeholder:text-slate-400"
               aria-label="Escribir mensaje"
+              maxLength={MAX_CHARS}
             />
             <button
               onClick={onSend}
@@ -220,9 +244,22 @@ export default function ChatArgix() {
               Enviar
             </button>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <Sparkles className="h-3.5 w-3.5" />
-            Streaming con tipeo humano. Tu API Key permanece segura en el servidor.
+
+          {/* Barra de estado / contador */}
+          <div className="mt-2 text-[11px] flex items-center justify-between">
+            <div className="flex items-center gap-1 text-slate-500">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Streaming con tipeo humano. Tu API Key permanece segura en el servidor.</span>
+            </div>
+            <div
+              className={[
+                "tabular-nums",
+                overLimit ? "text-red-600" : nearLimit ? "text-amber-600" : "text-slate-500",
+              ].join(" ")}
+              aria-live="polite"
+            >
+              {input.length}/{MAX_CHARS} {overLimit ? "• Límite superado" : nearLimit ? "• Cerca del límite" : ""}
+            </div>
           </div>
         </div>
       </motion.div>

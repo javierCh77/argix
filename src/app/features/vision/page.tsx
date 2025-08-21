@@ -2,110 +2,19 @@
 "use client";
 
 import Link from "next/link";
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
-  TrendingUp,
-  Gauge,
   CheckCircle2,
   ShieldCheck,
-  BarChart3,
   Zap,
   PlugZap,
   Camera,
   Cpu,
   CloudUpload,
   Video,
-  Bell,
   ServerCog,
 } from "lucide-react";
-import { useEffect } from "react";
-
-/* =========================
-   Utils: CountUp & Sparkline
-========================= */
-function useCountUp(to: number, duration = 1.2) {
-  const mv = useMotionValue(0);
-  useEffect(() => {
-    const controls = animate(mv, to, { duration, ease: "easeOut" });
-    return controls.stop;
-  }, [to, duration, mv]);
-  return mv;
-}
-
-function Sparkline({ points = [5, 7, 6, 9, 12, 10, 14] }: { points?: number[] }) {
-  const width = 120;
-  const height = 36;
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const norm = (v: number) =>
-    (height - 6) * ((v - min) / (max - min || 1)) + 3;
-  const step = width / (points.length - 1 || 1);
-
-  const d = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${i * step} ${height - norm(p)}`)
-    .join(" ");
-
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
-      <path d={d} fill="none" stroke="currentColor" strokeWidth="2" opacity={0.9} />
-    </svg>
-  );
-}
-
-/* =========================
-   Tarjetas de Métricas
-========================= */
-function StatCard({
-  title,
-  value,
-  suffix,
-  trend,
-  icon: Icon,
-  spark = [4, 6, 5, 7, 9, 8, 12],
-}: {
-  title: string;
-  value: number;
-  suffix?: string;
-  trend: "up" | "down";
-  icon: any;
-  spark?: number[];
-}) {
-  const mv = useCountUp(value, 1.1);
-  const rounded = useTransform(mv, (v) => Math.round(v).toString());
-
-  return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-4 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
-      <div className="flex items-center justify-between">
-        <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-600/30 bg-cyan-600/10 text-cyan-700">
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className={`text-xs font-semibold ${trend === "up" ? "text-emerald-600" : "text-rose-600"}`}>
-          {trend === "up" ? "▲ Mejora" : "▼ Caída"}
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <div className="text-sm text-slate-600">{title}</div>
-        <div className="mt-1 flex items-baseline gap-1">
-          <motion.span className="text-2xl font-bold tabular-nums text-slate-900">
-            {rounded}
-          </motion.span>
-          {suffix ? <span className="text-slate-500">{suffix}</span> : null}
-        </div>
-      </div>
-
-      <div className="mt-3 text-cyan-700/80">
-        <Sparkline points={spark} />
-      </div>
-    </div>
-  );
-}
 
 /* =========================
    Badges simples
@@ -139,7 +48,7 @@ function LogoCloud() {
 }
 
 /* =========================
-   Demo de overlay de cámara (SVG)
+   Demo de overlay de cámara (visual, no gráfico)
 ========================= */
 function CameraOverlayDemo() {
   return (
@@ -192,6 +101,78 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 /* =========================
+   Bloques de impacto (texto claro)
+========================= */
+function ImpactBlock({
+  title,
+  lines,
+}: {
+  title: string;
+  lines: string[];
+}) {
+  return (
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
+      <div className="text-sm font-semibold text-slate-900">{title}</div>
+      <ul className="mt-3 space-y-2 text-slate-700">
+        {lines.map((l, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-5 w-5 text-cyan-700" />
+            <span>{l}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* =========================
+   Tabla simple Antes / Después (texto)
+========================= */
+function BeforeAfterTable() {
+  return (
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-[0_8px_22px_rgba(2,6,23,0.06)]">
+      <div className="text-sm font-semibold text-slate-900">Antes vs Después</div>
+      <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr className="text-slate-600">
+              <th className="px-4 py-2 text-left">Indicador</th>
+              <th className="px-4 py-2 text-left">Sin IA</th>
+              <th className="px-4 py-2 text-left">Con IA</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Falsos positivos</td>
+              <td className="px-4 py-2 text-slate-500">Altos y variables</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Reducción con QA continuo y umbrales</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Tiempo de inspección</td>
+              <td className="px-4 py-2 text-slate-500">Segundos por ítem</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Milisegundos por cuadro</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Cobertura</td>
+              <td className="px-4 py-2 text-slate-500">Turnos limitados</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Monitoreo 24/7 con alertas</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 text-slate-700">Escalabilidad</td>
+              <td className="px-4 py-2 text-slate-500">Agregar personal</td>
+              <td className="px-4 py-2 font-medium text-slate-900">Agregar cámaras/nodos edge</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-3 text-xs text-slate-500">
+        Valores demostrativos para ilustrar el impacto; se ajustan según tu entorno y KPIs.
+      </p>
+    </div>
+  );
+}
+
+/* =========================
    Página de Feature de Visión
 ========================= */
 export default function VisionFeaturePage() {
@@ -235,17 +216,37 @@ export default function VisionFeaturePage() {
           </div>
         </div>
 
-        {/* Métricas clave */}
+        {/* Impacto — claro y sin gráficos */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
         >
-          <StatCard title="Aumento de precisión" value={23} suffix=" pts" trend="up" icon={TrendingUp} spark={[5,6,7,9,11,13,14]} />
-          <StatCard title="Rendimiento" value={60} suffix=" fps" trend="up" icon={Gauge} spark={[20,28,32,40,48,55,60]} />
-          <StatCard title="Falsos positivos" value={42} suffix="%" trend="down" icon={BarChart3} spark={[14,13,11,9,8,7,6]} />
-          <StatCard title="Tiempo de respuesta" value={35} suffix="%" trend="down" icon={Bell} spark={[12,11,10,9,8,7,6]} />
+          <ImpactBlock
+            title="Seguridad & cumplimiento"
+            lines={[
+              "Detección de EPP y zonas restringidas.",
+              "Alertas automáticas ante caídas o intrusiones.",
+              "Registro y evidencia para auditorías.",
+            ]}
+          />
+          <ImpactBlock
+            title="Calidad en línea"
+            lines={[
+              "Defectos superficiales y verificación de ensamblaje.",
+              "OCR de etiquetas y seriales.",
+              "Trazabilidad por lote y estación.",
+            ]}
+          />
+          <ImpactBlock
+            title="Operaciones & retail"
+            lines={[
+              "Afluencia y tiempos de permanencia.",
+              "Disponibilidad en góndola y planogramas.",
+              "Conteo de pallets y ocupación de docks.",
+            ]}
+          />
         </motion.div>
 
         {/* Contenido principal + sidebar */}
@@ -276,15 +277,15 @@ export default function VisionFeaturePage() {
               </li>
             </ul>
 
-            <h3 className="mt-8 text-slate-900 font-semibold">Beneficios</h3>
-            <ul className="mt-3 grid sm:grid-cols-2 gap-2 text-slate-700">
-              <li>• Decisiones en tiempo real con menos falsos positivos.</li>
-              <li>• Alertas y flujos automáticos.</li>
-              <li>• Escalable entre sitios y cámaras.</li>
-              <li>• Despliegue en edge o en tu nube.</li>
-            </ul>
+            <h3 className="mt-8 text-slate-900 font-semibold">Antes y después</h3>
+            <p className="mt-2 text-slate-600">
+              Vista comparativa para entender el salto operativo sin entrar en datos específicos.
+            </p>
+            <div className="mt-4">
+              <BeforeAfterTable />
+            </div>
 
-            {/* Mini demo */}
+            {/* Mini demo (visual) */}
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               <CameraOverlayDemo />
               <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
@@ -328,7 +329,7 @@ export default function VisionFeaturePage() {
             </div>
 
             <Link
-              href="#contact"
+               href="/#contact"
               className="mt-4 inline-flex items-center gap-2 rounded-xl border border-cyan-600/30 bg-cyan-600/10 px-4 py-2 text-cyan-700 hover:bg-cyan-600/20 transition"
             >
               Hablar con Ventas <ArrowRight className="h-4 w-4" />
@@ -349,7 +350,7 @@ export default function VisionFeaturePage() {
           <div className="lg:col-span-2 space-y-3">
             <FAQItem
               q="¿Funciona offline en el edge?"
-              a="Sí — puede desplegarse en gateways/IPC locales con sincronización periódica. Las alertas se almacenan y reenvían cuando se restablece la conectividad."
+              a="Sí — puede desplegarse en gateways/IPC locales con sincronización periódica. Las alertas se almacenan y se reenvían cuando vuelve la conectividad."
             />
             <FAQItem
               q="¿Cómo manejan la privacidad?"

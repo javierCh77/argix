@@ -163,7 +163,8 @@ function LogoWordmark() {
 export default function HeroSection() {
   const subtitle = useMemo(
     () =>
-      "Construimos productos de IA, copilotos y plataformas de datos para optimizar operaciones, mejorar la toma de decisiones y acelerar la innovación.",
+      "Construimos productos de IA , copilotos potenciados por MCP y plataformas de datos para optimizar operaciones, reducir costos, acompañar la transformación digital, mejorar la toma de decisiones y acelerar la innovación.",
+    // "Construimos productos de IA, copilotos y plataformas de datos para optimizar operaciones, mejorar la toma de decisiones y acelerar la innovación.",
     []
   );
   const typed = useTypewriter(subtitle, 40, 250);
@@ -207,7 +208,7 @@ export default function HeroSection() {
           </h1>
 
           <p
-            className="mb-10 max-w-xl text-base leading-relaxed text-[--color-muted] md:text-lg"
+            className="mb-10 max-w-2xl text-base leading-relaxed text-[--color-muted] md:text-lg"
             aria-live="polite"
           >
             {typed}
